@@ -11,8 +11,9 @@ router = APIRouter()
 
 @router.post("/login/")
 async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.username == request.username))
-    user = result.scalars().first()
+    query = select(User).where(User.username == request.username)
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
 
     if not user or user.password != request.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
