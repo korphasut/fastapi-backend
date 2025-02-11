@@ -1,16 +1,7 @@
 from fastapi import FastAPI
-from app.api.login import router as login_router
-from fastapi.middleware.cors import CORSMiddleware
+from app.api import auth, protected
 
 app = FastAPI()
 
-# รวม Router
-app.include_router(login_router)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # หรือกำหนดเฉพาะ URL ที่อนุญาต
-    allow_credentials=True,
-    allow_methods=["*"],  # อนุญาตทุก method เช่น GET, POST
-    allow_headers=["*"],  # อนุญาตทุก headers
-)
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(protected.router, prefix="/protected", tags=["Protected"])

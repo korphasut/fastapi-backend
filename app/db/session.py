@@ -1,28 +1,20 @@
-import ssl
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from app.core.config import settings
+import os
 
-# สร้าง SSL Context
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = False
-ssl_context.verify_mode = ssl.CERT_NONE
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# สร้าง Async Engine พร้อม SSL
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=True,
-    connect_args={"ssl": ssl_context}
-)
+engine = create_async_engine(DATABASE_URL, future=True, echo=True)
 
-# สร้าง SessionMaker
-async_session = sessionmaker(
+Base = declarative_base()
+
+async_session_maker = sessionmaker(
     bind=engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
 
-# Dependency สำหรับการสร้าง Session
 async def get_db():
-    async with async_session() as session:
+    async with async_session_maker() as session:
         yield session

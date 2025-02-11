@@ -1,9 +1,13 @@
 from pydantic_settings import BaseSettings
 
+""" import os
+print("Database URL:", os.getenv("DATABASE_URL")) """
+
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql+asyncpg://username:password@host/dbname"
-    SECRET_KEY: str = "your-secret-key"
-    ALGORITHM: str = "HS256"
+    DATABASE_URL: str
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     class Config:
         env_file = ".env"
