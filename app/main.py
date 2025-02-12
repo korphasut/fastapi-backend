@@ -1,11 +1,10 @@
 from fastapi import FastAPI
-from app.api import auth, protected
+from app.api import protected
 
 app = FastAPI()
 
-@app.get("/")
-async def root():
-    return {"message": "Hello from FastAPI + Supabase!"}
+app.include_router(protected.router)
 
-app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-app.include_router(protected.router, prefix="/protected", tags=["Protected"])
+@app.get("/")
+def read_root():
+    return {"message": "Hello, World!"}
