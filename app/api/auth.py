@@ -43,7 +43,7 @@ async def login(user: LoginRequest):
     if not verify_password(user.password, user_data["password"]):
         raise HTTPException(status_code=400, detail="Invalid username or password")
 
-    access_token = create_access_token({"sub": user.username}, expires_delta=timedelta(minutes=30))
+    access_token = create_access_token({"sub": user.username}, expires_delta=timedelta(minutes=60))
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/users", tags=["users"])
@@ -54,3 +54,15 @@ async def get_all_users():
         return {"users": users}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.delete("/delete-user/{username}", tags=["auth"])
+async def delete_user(username: str):
+
+    response = supabase.table("users").select("username").eq("username", username).execute()
+    
+    if not response.data:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    supabase.table("users").delete().eq("username", username).execute()
+
+    return {"message": f"User '{username}' deleted successfully"}
