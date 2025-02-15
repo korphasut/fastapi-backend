@@ -1,18 +1,17 @@
-""" from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import create_engine
 import os
-from dotenv import load_dotenv
+from app.core.config import SUPABASE_URL, SUPABASE_KEY
 
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-engine = create_async_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
+DATABASE_URL = f"postgresql://postgres:{SUPABASE_KEY}@{SUPABASE_URL.replace('https://', '')}/postgres"
 
 Base = declarative_base()
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Dependency สำหรับ FastAPI
-async def get_db():
-    async with SessionLocal() as session:
-        yield session """
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
